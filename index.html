@@ -55,18 +55,111 @@
     <button>Trigger a Global Error</button>
   </section>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
+  <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "ab46210026514c09a75235344be11b96"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+  </script>
   <script>
     let calculateBtn = document.querySelector('#calculate');
+    let output = document.querySelector('output');
     calculateBtn.addEventListener('click', () => {
-      let output = document.querySelector('output');
       let firstNum = document.querySelector('#first-num').value;
       let secondNum = document.querySelector('#second-num').value;
       let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      try {
+        if(secondNum == 0 && operator == '/')
+          throw new EvaluationError('Divided by zero');
+        output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (e) {
+        console.error("Attempted to divide by zero: " + e);
+      } finally {
+        console.log("Operation completed!");
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
     // TODO - Make buttons functional
+    let logBtn = errorBtns[0];
+    let errBtn = errorBtns[1];
+    let dirBtn = errorBtns[2];
+    let dirXmlBtn = errorBtns[3];
+    let grpBtn = errorBtns[4];
+    let endBtn = errorBtns[5];
+    let tblBtn = errorBtns[6];
+    let startTimer = errorBtns[7];
+    let endTimer = errorBtns[8];
+    let traceTimer = errorBtns[9];
+    let glblErr = errorBtns[10];
+
+    logBtn.addEventListener('click', () => {
+      console.log("Clicked log!");
+    });
+
+    errBtn.addEventListener('click', () => {
+      console.error("Clicked error!");
+    });
+
+    dirBtn.addEventListener('click', () => {
+      console.dir(dirBtn);
+    });
+
+    dirXmlBtn.addEventListener('click', () => {
+      console.dirxml(document);
+    });
+
+    grpBtn.addEventListener('click', () => {
+      console.group("Group 1");
+    });
+
+    endBtn.addEventListener('click', () => {
+      console.groupEnd("Group 1");
+    });
+
+    tblBtn.addEventListener('click', () => {
+      console.table([
+        {
+          field1: 'test',
+          field2: {
+            child1: 'child'
+          }
+        },
+        {
+          other: 'other'
+        }
+      ]);
+    });
+
+    startTimer.addEventListener('click', () => {
+      console.time('Test Label');
+    });
+
+    endTimer.addEventListener('click', () => {
+      console.timeEnd('Test Label');
+    });
+
+    traceTimer.addEventListener('click', () => {
+      const first = () => { second(); };
+      const second = () => { console.trace(); };
+      first();
+    });
+
+    glblErr.addEventListener('click', () => {
+      throw new Error();
+    });
+
+    class EvaluationError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "EvaluationError";
+      }
+    }
+
+    window.onerror = function(message, source, lineno, colno, error) {
+      console.log("Global error!");
+    }
   </script>
 </body>
 </html>
